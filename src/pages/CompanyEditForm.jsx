@@ -189,34 +189,43 @@ export default function CompanyEditForm() {
         event.preventDefault();
         setSaving(true);
         setError(null);
+        setSuccess(null);
 
         try {
-            // Prepara i dati da inviare (solo i campi modificati)
-            const updateData = {};
+            // Prepara i dati da inviare (solo i campi modificati, escludendo l'id inizialmente)
+            const updateFields = {};
 
             if (formData.name !== (editingCompany?.name || '')) {
-                updateData.name = formData.name;
+                updateFields.name = formData.name;
             }
             if (formData.fiscalCode !== (editingCompany?.fiscalCode || '')) {
-                updateData.fiscalCode = formData.fiscalCode;
+                updateFields.fiscalCode = formData.fiscalCode;
             }
             if (formData.cityId !== (editingCompany?.city?.id || '')) {
-                updateData.cityId = formData.cityId;
+                updateFields.city_fk = formData.cityId;
             }
             if (formData.logoUrl !== (editingCompany?.logoUrl || '')) {
-                updateData.logoUrl = formData.logoUrl;
+                updateFields.logoUrl = formData.logoUrl;
             }
 
             // Se non ci sono modifiche
-            if (Object.keys(updateData).length === 0) {
+            if (Object.keys(updateFields).length === 0) {
                 setError('Nessuna modifica da salvare');
                 setSaving(false);
                 return;
             }
 
-            // Va messo il link giusto per il PUT dei dati
-            const response = await fetch(`http://localhost:8100/home`, {
-                method: 'PUT',
+            // Aggiungi l'id solo dopo aver verificato che ci siano modifiche
+            const updateData = {
+                id: editingCompany.id,
+                ...updateFields
+            };
+
+            console.log(updateData);
+
+            // Esegui la richiesta POST o PUT
+            const response = await fetch(`http://localhost:8100/home/company`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -228,7 +237,6 @@ export default function CompanyEditForm() {
             }
 
             setSuccess('Modifiche salvate con successo!');
-
         } catch (error) {
             console.error('Errore nel salvataggio:', error);
             setError('Errore nel salvataggio delle modifiche');

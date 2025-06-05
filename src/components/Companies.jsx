@@ -232,19 +232,31 @@ export default function Companies() {
     const isAdmin = true;
 
     return (
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', py: 3, mb: 4 }}>
             <Box
                 sx={{
                     width: '100%',
-                    maxWidth: 1200, // Limita la larghezza della tabella
-                    px: 2,           // Padding orizzontale (utile su mobile)
+                    maxWidth: 1200,
+                    px: 2,
                 }}
             >
-                <Typography variant="h4" gutterBottom>
+                <Typography variant="h4" gutterBottom sx={{
+                    fontWeight: 600,
+                    color: 'text.primary',
+                    mb: 3
+                }}>
                     Companies
                 </Typography>
 
-                <Paper sx={{ width: '100%', mb: 2, overflowX: 'auto' }}>
+                <Paper sx={{
+                    width: '100%',
+                    mb: 2,
+                    overflowX: 'auto',
+                    borderRadius: 2,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    border: '1px solid',
+                    borderColor: 'grey.200'
+                }}>
                     <TableContainer>
                         <Table
                             sx={{ minWidth: 750 }}
@@ -256,17 +268,36 @@ export default function Companies() {
                                 orderBy={orderBy}
                                 onRequestSort={handleRequestSort}
                                 rowCount={companies.length}
+                                sx={{
+                                    '& .MuiTableCell-head': {
+                                        backgroundColor: 'grey.100',
+                                        fontWeight: 600,
+                                        color: 'text.secondary',
+                                        py: 2.5,
+                                        fontSize: '0.875rem',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px'
+                                    }
+                                }}
                             />
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} align="center">
+                                        <TableCell colSpan={7} align="center" sx={{
+                                            py: 4,
+                                            color: 'text.secondary',
+                                            fontStyle: 'italic'
+                                        }}>
                                             Caricamento...
                                         </TableCell>
                                     </TableRow>
                                 ) : companies.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} align="center">
+                                        <TableCell colSpan={7} align="center" sx={{
+                                            py: 4,
+                                            color: 'text.secondary',
+                                            fontStyle: 'italic'
+                                        }}>
                                             Nessun dato disponibile
                                         </TableCell>
                                     </TableRow>
@@ -274,40 +305,104 @@ export default function Companies() {
                                     companies
                                         .slice()
                                         .sort(getComparator(order, orderBy))
-                                        .map((company) => (
+                                        .map((company, index) => (
                                             <TableRow
                                                 hover
                                                 onClick={() => handleCompanyRedirect(company)}
                                                 tabIndex={-1}
                                                 key={`${company.id}-${company.fiscalCode}`}
-                                                sx={{ cursor: 'pointer' }}
+                                                sx={{
+                                                    cursor: 'pointer',
+                                                    '&:hover': {
+                                                        backgroundColor: 'primary.50',
+                                                    },
+                                                    '&:last-child td': {
+                                                        borderBottom: 0
+                                                    },
+                                                    backgroundColor: index % 2 === 0 ? 'white' : 'grey.25',
+                                                    transition: 'background-color 0.2s ease'
+                                                }}
                                             >
-                                                <TableCell align="right">{company.id}</TableCell>
-                                                <TableCell component="th" scope="row">
+                                                <TableCell align="right" sx={{
+                                                    py: 2,
+                                                    color: 'text.secondary',
+                                                    fontSize: '0.875rem'
+                                                }}>
+                                                    {company.id}
+                                                </TableCell>
+                                                <TableCell component="th" scope="row" sx={{
+                                                    py: 2,
+                                                    fontWeight: 500,
+                                                    color: 'text.primary'
+                                                }}>
                                                     {company.name}
                                                 </TableCell>
-                                                <TableCell align="right">{company.fiscalCode}</TableCell>
-                                                <TableCell align="right">{company.city?.name || 'N/A'}</TableCell>
-                                                <TableCell align="right">{company.city?.country?.name || 'N/A'}</TableCell>
-                                                <TableCell align="right">{company.numOfEmployees}</TableCell>
+                                                <TableCell align="right" sx={{
+                                                    py: 2,
+                                                    color: 'text.secondary',
+                                                    fontFamily: 'monospace',
+                                                    fontSize: '0.875rem'
+                                                }}>
+                                                    {company.fiscalCode}
+                                                </TableCell>
+                                                <TableCell align="right" sx={{
+                                                    py: 2,
+                                                    color: 'text.secondary'
+                                                }}>
+                                                    {company.city?.name || 'N/A'}
+                                                </TableCell>
+                                                <TableCell align="right" sx={{
+                                                    py: 2,
+                                                    color: 'text.secondary'
+                                                }}>
+                                                    {company.city?.country?.name || 'N/A'}
+                                                </TableCell>
+                                                <TableCell align="right" sx={{
+                                                    py: 2,
+                                                    color: 'text.secondary',
+                                                    fontWeight: 500
+                                                }}>
+                                                    {company.numOfEmployees}
+                                                </TableCell>
                                                 {isAdmin && (
-                                                    <TableCell align="right">
-                                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                                    <TableCell align="right" sx={{ py: 2 }}>
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            gap: 0.5,
+                                                            justifyContent: 'flex-end',
+                                                            opacity: 0.7,
+                                                            '&:hover': {
+                                                                opacity: 1
+                                                            },
+                                                            transition: 'opacity 0.2s ease'
+                                                        }}>
                                                             <IconButton
                                                                 size="small"
-                                                                color="primary"
+                                                                sx={{
+                                                                    color: 'primary.main',
+                                                                    '&:hover': {
+                                                                        backgroundColor: 'primary.50',
+                                                                    },
+                                                                    borderRadius: 1
+                                                                }}
                                                                 onClick={(event) => handleModifyCompany(event, company)}
                                                                 aria-label="modifica azienda"
                                                             >
-                                                                <EditIcon />
+                                                                <EditIcon fontSize="small" />
                                                             </IconButton>
                                                             <IconButton
                                                                 size="small"
-                                                                color="error"
+                                                                sx={{
+                                                                    color: 'error.main',
+                                                                    '&:hover': {
+                                                                        backgroundColor: 'error.50',
+                                                                    },
+                                                                    borderRadius: 1
+                                                                }}
                                                                 onClick={(event) => handleCompanyDelete(event, company)}
                                                                 aria-label="elimina azienda"
                                                             >
-                                                                <DeleteIcon />
+                                                                <DeleteIcon fontSize="small" />
                                                             </IconButton>
                                                         </Box>
                                                     </TableCell>
@@ -327,12 +422,27 @@ export default function Companies() {
                         page={page}
                         onPageChange={handleChangePage}
                         onRowsPerPageChange={handleChangeRowsPerPage}
+                        sx={{
+                            borderTop: '1px solid',
+                            borderColor: 'grey.200',
+                            backgroundColor: 'grey.25',
+                            '& .MuiTablePagination-toolbar': {
+                                paddingLeft: 2,
+                                paddingRight: 2,
+                            }
+                        }}
                     />
                 </Paper>
 
                 <FormControlLabel
                     control={<Switch checked={dense} onChange={handleChangeDense} />}
                     label="Dense padding"
+                    sx={{
+                        '& .MuiFormControlLabel-label': {
+                            fontSize: '0.875rem',
+                            color: 'text.secondary'
+                        }
+                    }}
                 />
             </Box>
         </Box>

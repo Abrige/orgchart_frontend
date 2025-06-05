@@ -210,8 +210,13 @@ export default function EmployeeEditForm() {
             if (formData.last_name !== (userData?.last_name || '')) {
                 updateData.last_name = formData.last_name;
             }
-            if (formData.birthdate && formData.birthdate !== userData?.birthdate) {
-                updateData.birthdate = format(formData.birthdate, 'yyyy-MM-dd');
+
+            const formattedFormDate = format(formData.birthdate, 'yyyy-MM-dd');
+
+            const formattedUserDate = userData?.birthdate ? format(parseISO(userData.birthdate), 'yyyy-MM-dd') : '';
+
+            if (formattedFormDate !== formattedUserDate) {
+                updateData.birthdate = formattedFormDate; // 👈 usa "date" se il DTO la chiama così
             }
             if (formData.sex !== (userData?.sex || '')) {
                 updateData.sex = formData.sex;
@@ -229,6 +234,8 @@ export default function EmployeeEditForm() {
                 setSaving(false);
                 return;
             }
+
+            updateData.id = editingEmployeeId;
 
             const response = await fetch(`http://localhost:8100/home/employee`, {
                 method: 'POST',

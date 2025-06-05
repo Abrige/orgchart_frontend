@@ -32,7 +32,7 @@ function Company() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-       if(selectedCompanyId) {
+        if (selectedCompanyId) {
             fetch(`http://localhost:8100/home/companies/${selectedCompanyId}/employees`)
                 .then(res => res.json()) // 👈 converte in oggetto JS
                 .then(data => {
@@ -50,7 +50,7 @@ function Company() {
     };
 
     const handleGoBack = () => {
-        navigate(-1) // come "indietro" del browser
+        navigate("/")
     }
 
     const handleModifyCompany = (company) => {
@@ -74,88 +74,226 @@ function Company() {
         console.log(`ID: ${employee.id}, name: ${employee.first_name} ${employee.last_name}, ###### DELETED ######`)
     }
 
-    return (
-        <>
-            <Button
-                startIcon={<ArrowBackIcon />}
-                onClick={handleGoBack}
-                sx={{ mb: 3 }}
-                variant="outlined"
-            >
-                Torna a tutte le aziende
-            </Button>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                <Typography variant="h5">
-                    Company name: {employees[0]?.company?.name}
-                </Typography>
-                {isAdmin && <Box sx={{display: 'flex', gap: 1}}>
-                    <IconButton
-                        size="small"
-                        color="primary"
-                        onClick={() => handleModifyCompany(employees[0].company)}
-                        aria-label="modifica azienda"
-                    >
-                        <EditIcon/>
-                    </IconButton>
-                    <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => handleCompanyDelete(employees[0].company)}
-                        aria-label="elimina azienda"
-                    >
-                        <DeleteIcon/>
-                    </IconButton>
-                </Box>}
-            </Box>
 
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>First Name</TableCell>
-                            <TableCell align="right">Last Name</TableCell>
-                            <TableCell align="right">Sex</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {employees.map((employee) => (
-                            <TableRow
-                                hover
-                                onClick={() => handleEmployeeRedirect(employee)}
-                                tabIndex={-1}
-                                key={`${employee.id}`} // Key più robusta per duplicati
-                                sx={{ cursor: 'pointer' }}
-                            >
-                                <TableCell>{employee.first_name}</TableCell>
-                                <TableCell align="right">{employee.last_name}</TableCell>
-                                <TableCell align="right">{employee.sex}</TableCell>
-                                {isAdmin &&
-                                    <TableCell align="right">
-                                        <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
-                                            <IconButton
-                                                size="small"
-                                                color="primary"
-                                                onClick={(event) => handleModifyEmployee(event, employee)}
-                                                aria-label={`modifica ${employee.first_name} ${employee.last_name}`}
-                                            >
-                                                <EditIcon/>
-                                            </IconButton>
-                                            <IconButton
-                                                size="small"
-                                                color="error"
-                                                onClick={(event) => handleEmployeeDelete(event, employee)}
-                                                aria-label={`elimina ${employee.first_name} ${employee.last_name}`}
-                                            >
-                                                <DeleteIcon/>
-                                            </IconButton>
-                                        </Box>
-                                    </TableCell>}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </>
+    return (
+            <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', py: 3, mb: 6}}>
+                <Box
+                    sx={{
+                        width: '100%',
+                        maxWidth: 1200,
+                        px: 2,
+                    }}
+                >
+                    <Button
+                        startIcon={<ArrowBackIcon/>}
+                        onClick={handleGoBack}
+                        sx={{
+                            mb: 3,
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 500
+                        }}
+                        variant="outlined"
+                    >
+                        Torna a tutte le aziende
+                    </Button>
+
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        mb: 3,
+                        p: 2,
+                        backgroundColor: 'grey.50',
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: 'grey.200'
+                    }}>
+                        <Typography variant="h5" sx={{fontWeight: 600, color: 'text.primary'}}>
+                            {employees[0]?.company?.name}
+                        </Typography>
+                        {isAdmin &&
+                            <Box sx={{display: 'flex', gap: 1, ml: 'auto'}}>
+                                <IconButton
+                                    size="small"
+                                    sx={{
+                                        backgroundColor: 'primary.main',
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: 'primary.dark',
+                                        },
+                                        borderRadius: 1.5
+                                    }}
+                                    onClick={() => handleModifyCompany(employees[0].company)}
+                                    aria-label="modifica azienda"
+                                >
+                                    <EditIcon fontSize="small"/>
+                                </IconButton>
+                                <IconButton
+                                    size="small"
+                                    sx={{
+                                        backgroundColor: 'error.main',
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: 'error.dark',
+                                        },
+                                        borderRadius: 1.5
+                                    }}
+                                    onClick={() => handleCompanyDelete(employees[0].company)}
+                                    aria-label="elimina azienda"
+                                >
+                                    <DeleteIcon fontSize="small"/>
+                                </IconButton>
+                            </Box>
+                        }
+                    </Box>
+
+                    <TableContainer
+                        component={Paper}
+                        sx={{
+                            borderRadius: 2,
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                            border: '1px solid',
+                            borderColor: 'grey.200',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        <Table sx={{minWidth: 650}} aria-label="tabella dipendenti">
+                            <TableHead>
+                                <TableRow sx={{backgroundColor: 'grey.100'}}>
+                                    <TableCell sx={{
+                                        fontWeight: 600,
+                                        color: 'text.secondary',
+                                        py: 2.5,
+                                        fontSize: '0.875rem',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px'
+                                    }}>
+                                        Nome
+                                    </TableCell>
+                                    <TableCell align="right" sx={{
+                                        fontWeight: 600,
+                                        color: 'text.secondary',
+                                        py: 2.5,
+                                        fontSize: '0.875rem',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px'
+                                    }}>
+                                        Cognome
+                                    </TableCell>
+                                    <TableCell align="right" sx={{
+                                        fontWeight: 600,
+                                        color: 'text.secondary',
+                                        py: 2.5,
+                                        fontSize: '0.875rem',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px'
+                                    }}>
+                                        Sesso
+                                    </TableCell>
+                                    {isAdmin &&
+                                        <TableCell align="right" sx={{
+                                            fontWeight: 600,
+                                            color: 'text.secondary',
+                                            py: 2.5,
+                                            fontSize: '0.875rem',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.5px'
+                                        }}>
+                                            Azioni
+                                        </TableCell>
+                                    }
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {employees.map((employee, index) => (
+                                    <TableRow
+                                        hover
+                                        onClick={() => handleEmployeeRedirect(employee)}
+                                        tabIndex={-1}
+                                        key={`${employee.id}`}
+                                        sx={{
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                backgroundColor: 'primary.50',
+                                            },
+                                            '&:last-child td': {
+                                                borderBottom: 0
+                                            },
+                                            backgroundColor: index % 2 === 0 ? 'white' : 'grey.25',
+                                            transition: 'background-color 0.2s ease'
+                                        }}
+                                    >
+                                        <TableCell sx={{
+                                            py: 2,
+                                            fontWeight: 500,
+                                            color: 'text.primary'
+                                        }}>
+                                            {employee.first_name}
+                                        </TableCell>
+                                        <TableCell align="right" sx={{
+                                            py: 2,
+                                            fontWeight: 500,
+                                            color: 'text.primary'
+                                        }}>
+                                            {employee.last_name}
+                                        </TableCell>
+                                        <TableCell align="right" sx={{
+                                            py: 2,
+                                            color: 'text.secondary'
+                                        }}>
+                                            {employee.sex}
+                                        </TableCell>
+                                        {isAdmin &&
+                                            <TableCell align="right" sx={{py: 2}}>
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    gap: 0.5,
+                                                    justifyContent: 'flex-end',
+                                                    opacity: 0.7,
+                                                    '&:hover': {
+                                                        opacity: 1
+                                                    },
+                                                    transition: 'opacity 0.2s ease'
+                                                }}>
+                                                    <IconButton
+                                                        size="small"
+                                                        sx={{
+                                                            color: 'primary.main',
+                                                            '&:hover': {
+                                                                backgroundColor: 'primary.50',
+                                                            },
+                                                            borderRadius: 1
+                                                        }}
+                                                        onClick={(event) => handleModifyEmployee(event, employee)}
+                                                        aria-label={`modifica ${employee.first_name} ${employee.last_name}`}
+                                                    >
+                                                        <EditIcon fontSize="small"/>
+                                                    </IconButton>
+                                                    <IconButton
+                                                        size="small"
+                                                        sx={{
+                                                            color: 'error.main',
+                                                            '&:hover': {
+                                                                backgroundColor: 'error.50',
+                                                            },
+                                                            borderRadius: 1
+                                                        }}
+                                                        onClick={(event) => handleEmployeeDelete(event, employee)}
+                                                        aria-label={`elimina ${employee.first_name} ${employee.last_name}`}
+                                                    >
+                                                        <DeleteIcon fontSize="small"/>
+                                                    </IconButton>
+                                                </Box>
+                                            </TableCell>
+                                        }
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            </Box>
     );
 }
 

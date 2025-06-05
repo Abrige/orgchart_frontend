@@ -4,8 +4,9 @@ import {
     Typography,
     Button,
     Avatar,
-    Paper, Stack
+    Paper,
 } from '@mui/material';
+import BusinessIcon from '@mui/icons-material/Business';
 import {
     ArrowBack as ArrowBackIcon,
     Person as PersonIcon,
@@ -56,7 +57,7 @@ const EmployeeDetailPage = () => {
     }
 
     const handleGoBack = () => {
-        navigate(-1) // come "indietro" del browser
+        navigate("/company") // come "indietro" del browser
     };
 
     const handleModifyEmployee = (event) => {
@@ -71,90 +72,214 @@ const EmployeeDetailPage = () => {
     }
 
     return (
-        <Box sx={{ p: 3, maxWidth: 1200, mx: 'auto' }}>
-            {/* Pulsante Indietro */}
-            <Button
-                startIcon={<ArrowBackIcon />}
-                onClick={handleGoBack}
-                sx={{ mb: 3 }}
-                variant="outlined"
-            >
-                Torna a {employee.company.name}
-            </Button>
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', py: 3, mb: 6 }}>
+            <Box sx={{ width: '100%', maxWidth: 1000, px: 2 }}>
+                {/* Pulsante Indietro */}
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    onClick={handleGoBack}
+                    sx={{
+                        mb: 3,
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 500
+                    }}
+                    variant="outlined"
+                >
+                    Torna a {employee.company.name}
+                </Button>
 
-            {/* Header con foto e nome */}
-            <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <Avatar
-                        src={employee.photo}
-                        sx={{
-                            width: 120,
-                            height: 120,
-                            bgcolor: 'grey.400'
-                        }}
-                    >
-                        {!employee.photo && <PersonIcon sx={{ fontSize: 60 }} />}
-                    </Avatar>
+                {/* Header compatto con foto e info principali */}
+                <Paper sx={{
+                    p: 3,
+                    mb: 3,
+                    borderRadius: 2,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    border: '1px solid',
+                    borderColor: 'grey.200'
+                }}>
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 3,
+                        flexDirection: { xs: 'column', sm: 'row' }
+                    }}>
+                        {/* Avatar e azioni */}
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                            <Avatar
+                                src={employee.photo}
+                                sx={{
+                                    width: 80,
+                                    height: 80,
+                                    bgcolor: 'grey.300',
+                                    border: '3px solid',
+                                    borderColor: 'grey.100'
+                                }}
+                            >
+                                {!employee.photo && <PersonIcon sx={{ fontSize: 40 }} />}
+                            </Avatar>
 
-                    <Box>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
-                            <Typography variant="h4" component="h1" gutterBottom>
-                                {employee.first_name} {employee.last_name}
-                            </Typography>
-                            <Box sx={{display: 'flex', gap: 1, justifyContent: 'flex-end'}}>
+                            {/* Azioni sotto l'avatar */}
+                            <Box sx={{ display: 'flex', gap: 1 }}>
                                 <IconButton
                                     size="small"
-                                    color="primary"
+                                    sx={{
+                                        backgroundColor: 'primary.main',
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: 'primary.dark',
+                                        },
+                                        borderRadius: 1.5
+                                    }}
                                     onClick={(event) => handleModifyEmployee(event)}
                                     aria-label={`modifica ${employee.first_name} ${employee.last_name}`}
                                 >
-                                    <EditIcon/>
+                                    <EditIcon fontSize="small" />
                                 </IconButton>
                                 <IconButton
                                     size="small"
-                                    color="error"
+                                    sx={{
+                                        backgroundColor: 'error.main',
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: 'error.dark',
+                                        },
+                                        borderRadius: 1.5
+                                    }}
                                     onClick={() => handleEmployeeDelete(employee)}
                                     aria-label={`elimina ${employee.first_name} ${employee.last_name}`}
                                 >
-                                    <DeleteIcon/>
+                                    <DeleteIcon fontSize="small" />
                                 </IconButton>
                             </Box>
                         </Box>
-                        <Stack direction="row" alignItems="center">
-                            {employee.sex === "M" ? (
-                                <>
-                                    <MaleIcon sx={{ color: 'blue' }} />
-                                    <Typography>Maschio</Typography>
-                                </>
-                            ) : employee.sex === "F" ? (
-                                <>
-                                    <FemaleIcon sx={{ color: 'hotpink' }} />
-                                    <Typography>Femmina</Typography>
-                                </>
-                            ) : (
-                                <Typography>Non specificato</Typography>
-                            )}
-                        </Stack>
-                        <Stack direction="row" alignItems="center">
-                            <CakeIcon sx={{ color: 'black' }} />
-                            <Typography>
-                                {formattedDate}
-                            </Typography>
-                        </Stack>
-                        <Stack>
-                            <Stack direction="row" alignItems="center">
-                                <LocationOnIcon color="action" />
-                                <Typography variant="body2">{employee.city?.name || 'Città non disponibile'}</Typography>
-                            </Stack>
 
-                            <Stack direction="row" alignItems="center">
-                                <PublicIcon color="action" />
-                                <Typography variant="body2">{employee.city?.country?.name || 'Paese non disponibile'}</Typography>
-                            </Stack>
-                        </Stack>
+                        {/* Info principale */}
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <Typography variant="h4" component="h1" sx={{
+                                fontWeight: 600,
+                                color: 'text.primary',
+                                mb: 2,
+                                wordBreak: 'break-word'
+                            }}>
+                                {employee.first_name} {employee.last_name}
+                            </Typography>
+
+                            {/* Grid delle informazioni */}
+                            <Box sx={{
+                                display: 'grid',
+                                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                                gap: 2
+                            }}>
+                                {/* Sesso */}
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    p: 1.5,
+                                    backgroundColor: 'grey.25',
+                                    borderRadius: 1.5,
+                                    border: '1px solid',
+                                    borderColor: 'grey.100'
+                                }}>
+                                    {employee.sex === "M" ? (
+                                        <>
+                                            <MaleIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+                                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                                Maschio
+                                            </Typography>
+                                        </>
+                                    ) : employee.sex === "F" ? (
+                                        <>
+                                            <FemaleIcon sx={{ color: 'secondary.main', fontSize: 20 }} />
+                                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                                Femmina
+                                            </Typography>
+                                        </>
+                                    ) : (
+                                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                            Non specificato
+                                        </Typography>
+                                    )}
+                                </Box>
+
+                                {/* Data di nascita */}
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    p: 1.5,
+                                    backgroundColor: 'grey.25',
+                                    borderRadius: 1.5,
+                                    border: '1px solid',
+                                    borderColor: 'grey.100'
+                                }}>
+                                    <CakeIcon sx={{ color: 'warning.main', fontSize: 20 }} />
+                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                        {formattedDate}
+                                    </Typography>
+                                </Box>
+
+                                {/* Città */}
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    p: 1.5,
+                                    backgroundColor: 'grey.25',
+                                    borderRadius: 1.5,
+                                    border: '1px solid',
+                                    borderColor: 'grey.100'
+                                }}>
+                                    <LocationOnIcon sx={{ color: 'info.main', fontSize: 20 }} />
+                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                        {employee.city?.name || 'Città non disponibile'}
+                                    </Typography>
+                                </Box>
+
+                                {/* Paese */}
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    p: 1.5,
+                                    backgroundColor: 'grey.25',
+                                    borderRadius: 1.5,
+                                    border: '1px solid',
+                                    borderColor: 'grey.100'
+                                }}>
+                                    <PublicIcon sx={{ color: 'success.main', fontSize: 20 }} />
+                                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                        {employee.city?.country?.name || 'Paese non disponibile'}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Box>
                     </Box>
-                </Box>
-            </Paper>
+                </Paper>
+
+                {/* Sezione azienda */}
+                <Paper sx={{
+                    p: 2.5,
+                    borderRadius: 2,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                    border: '1px solid',
+                    borderColor: 'grey.200',
+                    backgroundColor: 'primary.25'
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <BusinessIcon sx={{ color: 'primary.main', fontSize: 24 }} />
+                        <Box>
+                            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
+                                AZIENDA
+                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'text.primary' }}>
+                                {employee.company.name}
+                            </Typography>
+                        </Box>
+                    </Box>
+                </Paper>
+            </Box>
         </Box>
     );
 };

@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
-import Add from "./pages/Add.jsx"
 import About from "./pages/About.jsx"
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
@@ -28,7 +27,6 @@ function App() {
           <Box component="main" sx={{ flexGrow: 1 }}>
             <Routes>
               <Route path="/" element={<Companies />}></Route>
-              <Route path="/add" element={<Add />}></Route>
               <Route path="/about" element={<About />}></Route>
                 <Route path="/loginform" element={<LoginForm />}></Route>
               <Route path="/contact" element={<About />}></Route>

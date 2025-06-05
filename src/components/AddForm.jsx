@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Paper,
@@ -17,9 +17,11 @@ import {
     Grid,
     IconButton,
     Input,
-    Chip,
+    Card,
+    CardContent,
     Fade,
-    Slide
+    Tab,
+    Tabs
 } from '@mui/material';
 import {
     Business,
@@ -30,18 +32,17 @@ import {
 
 const AddForm = () => {
     const [selectedForm, setSelectedForm] = useState('company');
-    const [companies, setCompanies] = useState([
-        { id: 1, name: 'Azienda Example SRL' },
-        { id: 2, name: 'Tech Solutions SpA' }
-    ]);
+    const [companies, setCompanies] = useState([]);
+    const [countries, setCountries] = useState([]);
+    const [cities, setCities] = useState([]);
+    const [employeeCities, setEmployeeCities] = useState([]);
 
     // Form states
     const [companyForm, setCompanyForm] = useState({
         nome: '',
         codiceFiscale: '',
-        nomeCitta: '',
-        nomeCountry: '',
-        iso: '',
+        countryId: '',
+        cityId: '',
         logo: null
     });
 
@@ -50,20 +51,107 @@ const AddForm = () => {
         lastName: '',
         birthdate: '',
         sex: '',
-        cityName: '',
-        countryName: '',
-        iso: '',
-        company: ''
+        countryId: '',
+        cityId: '',
+        companyId: ''
     });
 
     const [uploadFile, setUploadFile] = useState(null);
 
+    // Fetch functions
+    const fetchCountries = async () => {
+        try {
+            const response = await fetch('http://localhost:8100/home/countries', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setCountries(data);
+            }
+        } catch (error) {
+            console.error('Errore nel caricamento paesi:', error);
+        }
+    };
+
+    const fetchCities = async (countryId) => {
+        try {
+            const response = await fetch(`http://localhost:8100/home/countries/${countryId}/cities`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setCities(data);
+            }
+        } catch (error) {
+            console.error('Errore nel caricamento città:', error);
+        }
+    };
+
+    const fetchEmployeeCities = async (countryId) => {
+        try {
+            const response = await fetch(`http://localhost:8100/home/countries/${countryId}/cities`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setEmployeeCities(data);
+            }
+        } catch (error) {
+            console.error('Errore nel caricamento città:', error);
+        }
+    };
+
+    const fetchCompanies = async () => {
+        try {
+            const response = await fetch('http://localhost:8100/home/companies', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setCompanies(data);
+            }
+        } catch (error) {
+            console.error('Errore nel caricamento aziende:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCountries();
+        fetchCompanies();
+    }, []);
+
     const handleCompanyChange = (field, value) => {
         setCompanyForm(prev => ({ ...prev, [field]: value }));
+
+        if (field === 'countryId' && value) {
+            fetchCities(value);
+            setCompanyForm(prev => ({ ...prev, cityId: '' }));
+        }
     };
 
     const handleEmployeeChange = (field, value) => {
         setEmployeeForm(prev => ({ ...prev, [field]: value }));
+
+        if (field === 'countryId' && value) {
+            fetchEmployeeCities(value);
+            setEmployeeForm(prev => ({ ...prev, cityId: '' }));
+        }
     };
 
     const handleLogoUpload = (event) => {
@@ -92,11 +180,11 @@ const AddForm = () => {
             setCompanyForm({
                 nome: '',
                 codiceFiscale: '',
-                nomeCitta: '',
-                nomeCountry: '',
-                iso: '',
+                countryId: '',
+                cityId: '',
                 logo: null
             });
+            setCities([]);
         } else if (selectedForm === 'employee') {
             console.log('Dati impiegato:', employeeForm);
             setEmployeeForm({
@@ -104,40 +192,20 @@ const AddForm = () => {
                 lastName: '',
                 birthdate: '',
                 sex: '',
-                cityName: '',
-                countryName: '',
-                iso: '',
-                company: ''
+                countryId: '',
+                cityId: '',
+                companyId: ''
             });
+            setEmployeeCities([]);
         } else {
             console.log('File caricato:', uploadFile);
             setUploadFile(null);
         }
     };
 
-    const navigationTabs = [
-        {
-            key: 'company',
-            label: 'Azienda',
-            icon: Business,
-            color: 'primary',
-            theme: '#1976d2'
-        },
-        {
-            key: 'employee',
-            label: 'Dipendente',
-            icon: Person,
-            color: 'success',
-            theme: '#2e7d32'
-        },
-        {
-            key: 'upload',
-            label: 'Carica File',
-            icon: CloudUpload,
-            color: 'warning',
-            theme: '#ed6c02'
-        }
-    ];
+    const handleTabChange = (event, newValue) => {
+        setSelectedForm(newValue);
+    };
 
     const renderCompanyForm = () => (
         <Fade in={selectedForm === 'company'} timeout={300}>
@@ -173,37 +241,37 @@ const AddForm = () => {
                     </Grid>
 
                     <Grid item xs={6}>
-                        <TextField
-                            fullWidth
-                            label="Nome Città"
-                            value={companyForm.nomeCitta}
-                            onChange={(e) => handleCompanyChange('nomeCitta', e.target.value)}
-                            required
-                            variant="outlined"
-                        />
+                        <FormControl fullWidth required>
+                            <InputLabel>Paese</InputLabel>
+                            <Select
+                                value={companyForm.countryId}
+                                onChange={(e) => handleCompanyChange('countryId', e.target.value)}
+                                label="Paese"
+                            >
+                                {countries.map((country) => (
+                                    <MenuItem key={country.id} value={country.id}>
+                                        {country.name} ({country.iso})
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Grid>
 
                     <Grid item xs={6}>
-                        <TextField
-                            fullWidth
-                            label="Nome Country"
-                            value={companyForm.nomeCountry}
-                            onChange={(e) => handleCompanyChange('nomeCountry', e.target.value)}
-                            required
-                            variant="outlined"
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="ISO"
-                            value={companyForm.iso}
-                            onChange={(e) => handleCompanyChange('iso', e.target.value)}
-                            required
-                            inputProps={{ maxLength: 3 }}
-                            variant="outlined"
-                        />
+                        <FormControl fullWidth required disabled={!companyForm.countryId}>
+                            <InputLabel>Città</InputLabel>
+                            <Select
+                                value={companyForm.cityId}
+                                onChange={(e) => handleCompanyChange('cityId', e.target.value)}
+                                label="Città"
+                            >
+                                {cities.map((city) => (
+                                    <MenuItem key={city.id} value={city.id}>
+                                        {city.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Grid>
 
                     <Grid item xs={12}>
@@ -318,47 +386,50 @@ const AddForm = () => {
                     </Grid>
 
                     <Grid item xs={6}>
-                        <TextField
-                            fullWidth
-                            label="Nome Città"
-                            value={employeeForm.cityName}
-                            onChange={(e) => handleEmployeeChange('cityName', e.target.value)}
-                            required
-                            variant="outlined"
-                        />
+                        <FormControl fullWidth required>
+                            <InputLabel>Paese</InputLabel>
+                            <Select
+                                value={employeeForm.countryId}
+                                onChange={(e) => handleEmployeeChange('countryId', e.target.value)}
+                                label="Paese"
+                            >
+                                {countries.map((country) => (
+                                    <MenuItem key={country.id} value={country.id}>
+                                        {country.name} ({country.iso})
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Grid>
 
                     <Grid item xs={6}>
-                        <TextField
-                            fullWidth
-                            label="Nome Country"
-                            value={employeeForm.countryName}
-                            onChange={(e) => handleEmployeeChange('countryName', e.target.value)}
-                            required
-                            variant="outlined"
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            label="ISO"
-                            value={employeeForm.iso}
-                            onChange={(e) => handleEmployeeChange('iso', e.target.value)}
-                            required
-                            inputProps={{ maxLength: 3 }}
-                            variant="outlined"
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <FormControl fullWidth required>
-                            <InputLabel>Azienda</InputLabel>
+                        <FormControl fullWidth required disabled={!employeeForm.countryId}>
+                            <InputLabel>Città</InputLabel>
                             <Select
-                                value={employeeForm.company}
-                                onChange={(e) => handleEmployeeChange('company', e.target.value)}
-                                label="Azienda"
+                                value={employeeForm.cityId}
+                                onChange={(e) => handleEmployeeChange('cityId', e.target.value)}
+                                label="Città"
                             >
+                                {employeeCities.map((city) => (
+                                    <MenuItem key={city.id} value={city.id}>
+                                        {city.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <FormControl fullWidth>
+                            <InputLabel>Azienda (Opzionale)</InputLabel>
+                            <Select
+                                value={employeeForm.companyId}
+                                onChange={(e) => handleEmployeeChange('companyId', e.target.value)}
+                                label="Azienda (Opzionale)"
+                            >
+                                <MenuItem value="">
+                                    <em>Nessuna azienda</em>
+                                </MenuItem>
                                 {companies.map((company) => (
                                     <MenuItem key={company.id} value={company.id}>
                                         {company.name}
@@ -467,96 +538,54 @@ const AddForm = () => {
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Grid container spacing={4}>
-                {/* Navigation Sidebar */}
-                <Grid item xs={12} md={3}>
-                    <Paper
-                        elevation={4}
+            <Paper elevation={3} sx={{ borderRadius: 4, overflow: 'hidden' }}>
+                {/* Navigation Tabs */}
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs
+                        value={selectedForm}
+                        onChange={handleTabChange}
+                        centered
                         sx={{
-                            p: 3,
-                            position: 'sticky',
-                            top: 20,
-                            borderRadius: 4,
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            color: 'white'
-                        }}
-                    >
-                        <Typography variant="h6" gutterBottom sx={{ textAlign: 'center', mb: 3, fontWeight: 'bold' }}>
-                            🚀 Seleziona Azione
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            {navigationTabs.map((tab) => {
-                                const IconComponent = tab.icon;
-                                const isActive = selectedForm === tab.key;
-
-                                return (
-                                    <Slide
-                                        key={tab.key}
-                                        direction="right"
-                                        in={true}
-                                        timeout={300 + navigationTabs.indexOf(tab) * 100}
-                                    >
-                                        <Chip
-                                            icon={<IconComponent />}
-                                            label={tab.label}
-                                            clickable
-                                            onClick={() => setSelectedForm(tab.key)}
-                                            variant={isActive ? "filled" : "outlined"}
-                                            sx={{
-                                                justifyContent: 'flex-start',
-                                                height: 56,
-                                                fontSize: '1rem',
-                                                fontWeight: isActive ? 'bold' : 'medium',
-                                                backgroundColor: isActive ? 'rgba(255,255,255,0.9)' : 'transparent',
-                                                color: isActive ? tab.theme : 'white',
-                                                borderColor: 'rgba(255,255,255,0.3)',
-                                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                                '&:hover': {
-                                                    backgroundColor: isActive ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.1)',
-                                                    transform: 'translateX(8px) scale(1.02)',
-                                                    boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
-                                                },
-                                                '& .MuiChip-icon': {
-                                                    color: isActive ? tab.theme : 'white',
-                                                    fontSize: '1.3rem'
-                                                }
-                                            }}
-                                        />
-                                    </Slide>
-                                );
-                            })}
-                        </Box>
-                    </Paper>
-                </Grid>
-
-                {/* Form principale */}
-                <Grid item xs={12} md={9}>
-                    <Paper
-                        elevation={6}
-                        sx={{
-                            p: 4,
-                            minHeight: 700,
-                            borderRadius: 4,
-                            background: 'white',
-                            position: 'relative',
-                            overflow: 'hidden',
-                            '&::before': {
-                                content: '""',
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                height: '4px',
-                                background: navigationTabs.find(tab => tab.key === selectedForm)?.theme || '#1976d2'
+                            '& .MuiTab-root': {
+                                minHeight: 80,
+                                fontSize: '1rem',
+                                fontWeight: 'medium',
+                                textTransform: 'none',
+                                minWidth: 120
                             }
                         }}
                     >
-                        {selectedForm === 'company' && renderCompanyForm()}
-                        {selectedForm === 'employee' && renderEmployeeForm()}
-                        {selectedForm === 'upload' && renderFileUploadForm()}
-                    </Paper>
-                </Grid>
-            </Grid>
+                        <Tab
+                            value="company"
+                            label="Azienda"
+                            icon={<Business />}
+                            iconPosition="start"
+                            sx={{ color: '#1976d2' }}
+                        />
+                        <Tab
+                            value="employee"
+                            label="Dipendente"
+                            icon={<Person />}
+                            iconPosition="start"
+                            sx={{ color: '#2e7d32' }}
+                        />
+                        <Tab
+                            value="upload"
+                            label="Carica File"
+                            icon={<CloudUpload />}
+                            iconPosition="start"
+                            sx={{ color: '#ed6c02' }}
+                        />
+                    </Tabs>
+                </Box>
+
+                {/* Form Container */}
+                <Box sx={{ p: 4, minHeight: 600 }}>
+                    {selectedForm === 'company' && renderCompanyForm()}
+                    {selectedForm === 'employee' && renderEmployeeForm()}
+                    {selectedForm === 'upload' && renderFileUploadForm()}
+                </Box>
+            </Paper>
         </Container>
     );
 };
