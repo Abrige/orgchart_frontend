@@ -1,0 +1,199 @@
+{
+  "content": [
+    {
+      "id": 101,
+      "name": "Raynor Group",
+      "fiscalCode": "088GIKVXHD",
+      "city": {
+        "id": 5,
+        "name": "Salzburg",
+        "country": {
+          "id": 2,
+          "name": "Austria",
+          "iso": "AT"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    },
+    {
+      "id": 102,
+      "name": "Pfeffer-Sporer",
+      "fiscalCode": "6CDK3FML6S",
+      "city": {
+        "id": 76,
+        "name": "Hafnarfjörður",
+        "country": {
+          "id": 20,
+          "name": "Iceland",
+          "iso": "IS"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    },
+    {
+      "id": 103,
+      "name": "Bernier, Mann and Marquardt",
+      "fiscalCode": "O2QKIM73PX",
+      "city": {
+        "id": 46,
+        "name": "Helsinki",
+        "country": {
+          "id": 13,
+          "name": "Finland",
+          "iso": "FI"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    },
+    {
+      "id": 104,
+      "name": "Thiel Inc",
+      "fiscalCode": "HEHU0NZ8OH",
+      "city": {
+        "id": 127,
+        "name": "Iași",
+        "country": {
+          "id": 35,
+          "name": "Romania",
+          "iso": "RO"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    },
+    {
+      "id": 105,
+      "name": "Lind-Jones",
+      "fiscalCode": "EVOJ2GBRYL",
+      "city": {
+        "id": 91,
+        "name": "Daugavpils",
+        "country": {
+          "id": 25,
+          "name": "Latvia",
+          "iso": "LV"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    },
+    {
+      "id": 106,
+      "name": "Roob and Sons",
+      "fiscalCode": "YBSHSA4W1J",
+      "city": {
+        "id": 39,
+        "name": "Tartu",
+        "country": {
+          "id": 11,
+          "name": "Estonia",
+          "iso": "EE"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    },
+    {
+      "id": 107,
+      "name": "Okuneva and Sons",
+      "fiscalCode": "XRY2MSPPC0",
+      "city": {
+        "id": 59,
+        "name": "Thessaloniki",
+        "country": {
+          "id": 16,
+          "name": "Greece",
+          "iso": "GR"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    },
+    {
+      "id": 108,
+      "name": "Parker-Tremblay",
+      "fiscalCode": "HBVDK3LRB1",
+      "city": {
+        "id": 47,
+        "name": "Espoo",
+        "country": {
+          "id": 13,
+          "name": "Finland",
+          "iso": "FI"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    },
+    {
+      "id": 109,
+      "name": "Oberbrunner-Waters",
+      "fiscalCode": "OC6VZKGYM3",
+      "city": {
+        "id": 74,
+        "name": "Reykjavik",
+        "country": {
+          "id": 20,
+          "name": "Iceland",
+          "iso": "IS"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    },
+    {
+      "id": 110,
+      "name": "O'Keefe Group",
+      "fiscalCode": "3XKPUI9FX4",
+      "city": {
+        "id": 40,
+        "name": "Narva",
+        "country": {
+          "id": 11,
+          "name": "Estonia",
+          "iso": "EE"
+        }
+      },
+      "logoUrl": null,
+      "numOfEmployees": 0,
+      "deleted": false
+    }
+  ],
+  "pageable": {
+    "pageNumber": 10,
+    "pageSize": 10,
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 100,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalElements": 800,
+  "totalPages": 80,
+  "size": 10,
+  "number": 10,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "first": false,
+  "numberOfElements": 10,
+  "empty": false
+}
