@@ -63,13 +63,13 @@ const headCells = [
     },
     {
         id: 'city.name',
-        numeric: false,
+        numeric: true,
         disablePadding: false,
         label: 'City',
     },
     {
         id: 'city.country.name',
-        numeric: false,
+        numeric: true,
         disablePadding: false,
         label: 'Country',
     },
@@ -78,6 +78,12 @@ const headCells = [
         numeric: true,
         disablePadding: false,
         label: 'Employees',
+    },
+    {
+        id: 'action',
+        numeric: true,
+        disablePadding: false,
+        label: 'Action',
     },
 ];
 
@@ -90,13 +96,21 @@ function EnhancedTableHead(props) {
 
     return (
         <TableHead>
-            <TableRow>
+            <TableRow sx={{backgroundColor: 'grey.100'}}>
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
                         align={headCell.numeric ? 'right' : 'left'}
                         padding={headCell.disablePadding ? 'none' : 'normal'}
                         sortDirection={orderBy === headCell.id ? order : false}
+                        sx={{
+                            fontWeight: 600,
+                            color: 'text.secondary',
+                            py: 2.5,
+                            fontSize: '0.875rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
+                        }}
                     >
                         <TableSortLabel
                             active={orderBy === headCell.id}

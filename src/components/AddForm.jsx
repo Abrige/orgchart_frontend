@@ -38,22 +38,21 @@ const AddForm = () => {
     const [employeeCities, setEmployeeCities] = useState([]);
 
     // Form states
+    // COMPANY FORM 
     const [companyForm, setCompanyForm] = useState({
-        nome: '',
-        codiceFiscale: '',
-        countryId: '',
-        cityId: '',
-        logo: null
+        name: '',
+        fiscalCode: '',
+        city_fk: '',
+        logo: ''
     });
-
+    // EMPLOYEE FORM 
     const [employeeForm, setEmployeeForm] = useState({
-        firstName: '',
-        lastName: '',
+        first_name: '',
+        last_name: '',
         birthdate: '',
         sex: '',
-        countryId: '',
-        cityId: '',
-        companyId: ''
+        city_fk: '',
+        company_fk: ''
     });
 
     const [uploadFile, setUploadFile] = useState(null);
@@ -130,18 +129,21 @@ const AddForm = () => {
             console.error('Errore nel caricamento aziende:', error);
         }
     };
-
+    
+    // fetch dei dati al caricamento della pagina
     useEffect(() => {
         fetchCountries();
         fetchCompanies();
     }, []);
-
+    
+    
+    // HANDLERS
     const handleCompanyChange = (field, value) => {
         setCompanyForm(prev => ({ ...prev, [field]: value }));
 
         if (field === 'countryId' && value) {
             fetchCities(value);
-            setCompanyForm(prev => ({ ...prev, cityId: '' }));
+            setCompanyForm(prev => ({ ...prev, city_fk: '' }));
         }
     };
 
@@ -150,7 +152,7 @@ const AddForm = () => {
 
         if (field === 'countryId' && value) {
             fetchEmployeeCities(value);
-            setEmployeeForm(prev => ({ ...prev, cityId: '' }));
+            setEmployeeForm(prev => ({ ...prev, city_fk: '' }));
         }
     };
 
@@ -179,22 +181,20 @@ const AddForm = () => {
             setCompanies(prev => [...prev, newCompany]);
             setCompanyForm({
                 nome: '',
-                codiceFiscale: '',
-                countryId: '',
-                cityId: '',
+                fiscalCode: '',
+                city_fk: '',
                 logo: null
             });
             setCities([]);
         } else if (selectedForm === 'employee') {
             console.log('Dati impiegato:', employeeForm);
             setEmployeeForm({
-                firstName: '',
-                lastName: '',
+                first_name: '',
+                last_name: '',
                 birthdate: '',
                 sex: '',
-                countryId: '',
-                cityId: '',
-                companyId: ''
+                city_fk: '',
+                company_fk: ''
             });
             setEmployeeCities([]);
         } else {
@@ -206,7 +206,10 @@ const AddForm = () => {
     const handleTabChange = (event, newValue) => {
         setSelectedForm(newValue);
     };
-
+    
+    // ####### FORMS #######
+    
+    // COMPANY FORM
     const renderCompanyForm = () => (
         <Fade in={selectedForm === 'company'} timeout={300}>
             <Box component="form" onSubmit={handleSubmit}>
@@ -233,8 +236,8 @@ const AddForm = () => {
                         <TextField
                             fullWidth
                             label="Codice Fiscale"
-                            value={companyForm.codiceFiscale}
-                            onChange={(e) => handleCompanyChange('codiceFiscale', e.target.value)}
+                            value={companyForm.fiscalCode}
+                            onChange={(e) => handleCompanyChange('fiscalCode', e.target.value)}
                             required
                             variant="outlined"
                         />
@@ -261,8 +264,8 @@ const AddForm = () => {
                         <FormControl fullWidth required disabled={!companyForm.countryId}>
                             <InputLabel>Città</InputLabel>
                             <Select
-                                value={companyForm.cityId}
-                                onChange={(e) => handleCompanyChange('cityId', e.target.value)}
+                                value={companyForm.city_fk}
+                                onChange={(e) => handleCompanyChange('city_fk', e.target.value)}
                                 label="Città"
                             >
                                 {cities.map((city) => (
@@ -325,6 +328,7 @@ const AddForm = () => {
         </Fade>
     );
 
+    // EMPLOYEE FORM
     const renderEmployeeForm = () => (
         <Fade in={selectedForm === 'employee'} timeout={300}>
             <Box component="form" onSubmit={handleSubmit}>
@@ -340,8 +344,8 @@ const AddForm = () => {
                         <TextField
                             fullWidth
                             label="Nome"
-                            value={employeeForm.firstName}
-                            onChange={(e) => handleEmployeeChange('firstName', e.target.value)}
+                            value={employeeForm.first_name}
+                            onChange={(e) => handleEmployeeChange('first_name', e.target.value)}
                             required
                             variant="outlined"
                         />
@@ -351,8 +355,8 @@ const AddForm = () => {
                         <TextField
                             fullWidth
                             label="Cognome"
-                            value={employeeForm.lastName}
-                            onChange={(e) => handleEmployeeChange('lastName', e.target.value)}
+                            value={employeeForm.last_name}
+                            onChange={(e) => handleEmployeeChange('last_name', e.target.value)}
                             required
                             variant="outlined"
                         />
@@ -406,8 +410,8 @@ const AddForm = () => {
                         <FormControl fullWidth required disabled={!employeeForm.countryId}>
                             <InputLabel>Città</InputLabel>
                             <Select
-                                value={employeeForm.cityId}
-                                onChange={(e) => handleEmployeeChange('cityId', e.target.value)}
+                                value={employeeForm.city_fk}
+                                onChange={(e) => handleEmployeeChange('city_fk', e.target.value)}
                                 label="Città"
                             >
                                 {employeeCities.map((city) => (
@@ -423,8 +427,8 @@ const AddForm = () => {
                         <FormControl fullWidth>
                             <InputLabel>Azienda (Opzionale)</InputLabel>
                             <Select
-                                value={employeeForm.companyId}
-                                onChange={(e) => handleEmployeeChange('companyId', e.target.value)}
+                                value={employeeForm.company_fk}
+                                onChange={(e) => handleEmployeeChange('company_fk', e.target.value)}
                                 label="Azienda (Opzionale)"
                             >
                                 <MenuItem value="">
@@ -461,6 +465,7 @@ const AddForm = () => {
         </Fade>
     );
 
+    // FILE UPLOADS
     const renderFileUploadForm = () => (
         <Fade in={selectedForm === 'upload'} timeout={300}>
             <Box component="form" onSubmit={handleSubmit}>
@@ -536,6 +541,8 @@ const AddForm = () => {
         </Fade>
     );
 
+
+    // NAVIGATION TABS
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
             <Paper elevation={3} sx={{ borderRadius: 4, overflow: 'hidden' }}>
