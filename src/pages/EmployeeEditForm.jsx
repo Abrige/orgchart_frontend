@@ -14,8 +14,6 @@ import {
     Autocomplete,
     Alert,
     CircularProgress,
-    FormControlLabel,
-    Switch
 } from '@mui/material';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
@@ -80,6 +78,8 @@ export default function EmployeeEditForm() {
         }
     }, [formData.countryId]);
 
+
+    // Fetcha i dati dell'employee in base all'ID
     const fetchUserData = async () => {
         setLoading(true);
         setError(null);

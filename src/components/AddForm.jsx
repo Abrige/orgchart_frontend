@@ -21,7 +21,9 @@ import {
     CardContent,
     Fade,
     Tab,
-    Tabs
+    Tabs,
+    Alert,
+    CircularProgress
 } from '@mui/material';
 import {
     Business,
@@ -31,30 +33,40 @@ import {
 } from '@mui/icons-material';
 
 const AddForm = () => {
-    const [selectedForm, setSelectedForm] = useState('company');
-    const [companies, setCompanies] = useState([]);
-    const [countries, setCountries] = useState([]);
-    const [cities, setCities] = useState([]);
-    const [employeeCities, setEmployeeCities] = useState([]);
 
-    // Form states
-    // COMPANY FORM 
+    // Stati per il controllo del form
+    const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
+
+    const [selectedForm, setSelectedForm] = useState('company'); // stato per capire quale form è selezionato
+    const [companies, setCompanies] = useState([]); // contiene i dati fetchati delle company
+    const [countries, setCountries] = useState([]); // contiene i dati fetchati delle countries
+    const [cities, setCities] = useState([]); // contiene i dati fetchati delle cities
+    const [employeeCities, setEmployeeCities] = useState([]); // TODO vedere se serve
+
+    // ####### FORM STATES #######
+    // COMPANY FORM
     const [companyForm, setCompanyForm] = useState({
         name: '',
         fiscalCode: '',
         city_fk: '',
-        logo: ''
+        logoUrl: '',
+        countryId: '',
+        logo: null     // TODO reworkare il logoUrl e il logo come file
     });
-    // EMPLOYEE FORM 
+    // EMPLOYEE FORM
     const [employeeForm, setEmployeeForm] = useState({
         first_name: '',
         last_name: '',
         birthdate: '',
         sex: '',
         city_fk: '',
-        company_fk: ''
+        company_fk: '',
+        countryId: ''
     });
-
+    // FILE
     const [uploadFile, setUploadFile] = useState(null);
 
     // Fetch functions
@@ -129,90 +141,223 @@ const AddForm = () => {
             console.error('Errore nel caricamento aziende:', error);
         }
     };
-    
+
     // fetch dei dati al caricamento della pagina
     useEffect(() => {
         fetchCountries();
         fetchCompanies();
     }, []);
-    
-    
-    // HANDLERS
+
+
+    // HANDLERS shift+f11 per bookmarks
+    // Serve per scrivere nel form della company in base a che input è
     const handleCompanyChange = (field, value) => {
-        setCompanyForm(prev => ({ ...prev, [field]: value }));
+        // Aggiorna il campo specificato (es: 'name', 'fiscalCode', ecc.) nello state 'companyForm'
+        setCompanyForm(prev => ({
+            ...prev,                // Mantiene gli altri campi invariati
+            [field]: value          // Aggiorna solo quello passato alla funzione
+        }));
 
+        // Se il campo modificato è il paese ('countryId') e ha un valore...
         if (field === 'countryId' && value) {
-            fetchCities(value);
-            setCompanyForm(prev => ({ ...prev, city_fk: '' }));
+            fetchCities(value);     // Carica le città associate a quel paese (chiamata API)
+
+            // Resetta il campo 'city_fk' (per evitare che resti selezionata una città del paese precedente)
+            setCompanyForm(prev => ({
+                ...prev,
+                city_fk: ''         // Reset città selezionata
+            }));
         }
     };
 
+    // Serve per scrivere nel form dell' Employee in base a che input è
     const handleEmployeeChange = (field, value) => {
-        setEmployeeForm(prev => ({ ...prev, [field]: value }));
+        // Aggiorna il campo specificato nel form dello stato 'employeeForm'
+        setEmployeeForm(prev => ({
+            ...prev,                // copia tutti i campi precedenti
+            [field]: value          // imposta il campo dinamico passato come parametro
+        }));
 
+        // Se il campo cambiato è il 'countryId' e il valore è valido (non vuoto)...
         if (field === 'countryId' && value) {
-            fetchEmployeeCities(value);
-            setEmployeeForm(prev => ({ ...prev, city_fk: '' }));
+            fetchEmployeeCities(value);  // Carica le città associate al nuovo paese
+
+            // Resetta la città selezionata, perché quella vecchia non è più valida
+            setEmployeeForm(prev => ({
+                ...prev,
+                city_fk: ''
+            }));
         }
     };
 
+    // Si usa in un campo file tipo <input type="file" /> per caricare un'immagine/logo.
     const handleLogoUpload = (event) => {
-        const file = event.target.files[0];
+        const file = event.target.files[0];  // Prende il primo file selezionato
+
         if (file) {
-            setCompanyForm(prev => ({ ...prev, logo: file }));
+            setCompanyForm(prev => ({
+                ...prev,
+                logo: file          // Aggiunge il file al form azienda
+            }));
         }
     };
 
+    // È più generico: non aggiorna un form, ma salva semplicemente un file in uno state separato (uploadFile).
     const handleFileUpload = (event) => {
-        const file = event.target.files[0];
+        const file = event.target.files[0];  // Prende il primo file selezionato
+
         if (file) {
-            setUploadFile(file);
+            setUploadFile(file);  // Salva direttamente il file nello stato 'uploadFile'
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (selectedForm === 'company') {
-            console.log('Dati azienda:', companyForm);
-            const newCompany = {
-                id: companies.length + 1,
-                name: companyForm.nome
+
+    // SUBMIT FUNCTIONS
+    const handleCompanySubmit = async (event) => {
+        event.preventDefault();
+        setSaving(true);
+        setError(null);
+        setSuccess(false);
+
+        try {
+            const addCompanyData = {
+                name: companyForm.name,
+                fiscalCode: companyForm.fiscalCode,
+                city_fk: companyForm.city_fk || null,
+                logoUrl: companyForm.logoUrl || null
             };
-            setCompanies(prev => [...prev, newCompany]);
+
+            console.log('Dati azienda da inviare:', addCompanyData);
+
+            const response = await fetch(`http://localhost:8100/home/company`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(addCompanyData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            setSuccess(true);
+            // Reset form dopo il successo
             setCompanyForm({
-                nome: '',
+                name: '',
                 fiscalCode: '',
                 city_fk: '',
+                logoUrl: '',
+                countryId: '',
                 logo: null
             });
             setCities([]);
-        } else if (selectedForm === 'employee') {
-            console.log('Dati impiegato:', employeeForm);
+
+        } catch (error) {
+            console.error('Errore nel salvataggio azienda:', error);
+            setError('Errore nel salvataggio dell\'azienda. Riprova.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleEmployeeSubmit = async (event) => {
+        event.preventDefault();
+        setSaving(true);
+        setError(null);
+        setSuccess(false);
+
+        try {
+            const addEmployeeData = {
+                first_name: employeeForm.first_name,
+                last_name: employeeForm.last_name,
+                birthdate: employeeForm.birthdate || null,
+                sex: employeeForm.sex || null,
+                city_fk: employeeForm.city_fk || null,
+                company_fk: employeeForm.company_fk || null
+            };
+
+            console.log('Dati dipendente da inviare:', addEmployeeData);
+
+            const response = await fetch(`http://localhost:8100/home/employee`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(addEmployeeData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            setSuccess(true);
+            // Reset form dopo il successo
             setEmployeeForm({
                 first_name: '',
                 last_name: '',
                 birthdate: '',
                 sex: '',
                 city_fk: '',
-                company_fk: ''
+                company_fk: '',
+                countryId: ''
             });
             setEmployeeCities([]);
-        } else {
-            console.log('File caricato:', uploadFile);
+
+        } catch (error) {
+            console.error('Errore nel salvataggio dipendente:', error);
+            setError('Errore nel salvataggio del dipendente. Riprova.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleFileSubmit = async (event) => {
+        event.preventDefault();
+        if (!uploadFile) return;
+
+        setUploading(true);
+        setError(null);
+        setSuccess(false);
+
+        try {
+            const formData = new FormData();
+            formData.append('file', uploadFile);
+
+            // Qui dovrai adattare l'endpoint per il caricamento file
+            const response = await fetch(`http://localhost:8100/home/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            setSuccess(true);
             setUploadFile(null);
+
+        } catch (error) {
+            console.error('Errore nel caricamento file:', error);
+            setError('Errore nel caricamento del file. Riprova.');
+        } finally {
+            setUploading(false);
         }
     };
 
     const handleTabChange = (event, newValue) => {
         setSelectedForm(newValue);
+        // Reset stati quando cambi tab
+        setError(null);
+        setSuccess(false);
     };
-    
+
     // ####### FORMS #######
-    
+
     // COMPANY FORM
     const renderCompanyForm = () => (
         <Fade in={selectedForm === 'company'} timeout={300}>
-            <Box component="form" onSubmit={handleSubmit}>
+            <Box component="form" onSubmit={handleCompanySubmit}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, pb: 2, borderBottom: '2px solid #1976d2' }}>
                     <Business sx={{ fontSize: 32, color: '#1976d2', mr: 2 }} />
                     <Typography variant="h4" color="primary" fontWeight="bold">
@@ -220,15 +365,28 @@ const AddForm = () => {
                     </Typography>
                 </Box>
 
+                {/* Alert messages */}
+                {error && (
+                    <Alert severity="error" sx={{ mb: 3 }}>
+                        {error}
+                    </Alert>
+                )}
+                {success && (
+                    <Alert severity="success" sx={{ mb: 3 }}>
+                        Azienda aggiunta con successo!
+                    </Alert>
+                )}
+
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
                             label="Nome Azienda"
-                            value={companyForm.nome}
-                            onChange={(e) => handleCompanyChange('nome', e.target.value)}
+                            value={companyForm.name}
+                            onChange={(e) => handleCompanyChange('name', e.target.value)}
                             required
                             variant="outlined"
+                            disabled={saving}
                         />
                     </Grid>
 
@@ -240,6 +398,19 @@ const AddForm = () => {
                             onChange={(e) => handleCompanyChange('fiscalCode', e.target.value)}
                             required
                             variant="outlined"
+                            disabled={saving}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <TextField
+                            fullWidth
+                            label="URL Logo (opzionale)"
+                            value={companyForm.logoUrl}
+                            onChange={(e) => handleCompanyChange('logoUrl', e.target.value)}
+                            variant="outlined"
+                            disabled={saving}
+                            placeholder="https://esempio.com/logo.png"
                         />
                     </Grid>
 
@@ -250,6 +421,7 @@ const AddForm = () => {
                                 value={companyForm.countryId}
                                 onChange={(e) => handleCompanyChange('countryId', e.target.value)}
                                 label="Paese"
+                                disabled={saving}
                             >
                                 {countries.map((country) => (
                                     <MenuItem key={country.id} value={country.id}>
@@ -261,7 +433,7 @@ const AddForm = () => {
                     </Grid>
 
                     <Grid item xs={6}>
-                        <FormControl fullWidth required disabled={!companyForm.countryId}>
+                        <FormControl fullWidth required disabled={!companyForm.countryId || saving}>
                             <InputLabel>Città</InputLabel>
                             <Select
                                 value={companyForm.city_fk}
@@ -280,7 +452,7 @@ const AddForm = () => {
                     <Grid item xs={12}>
                         <Box sx={{ mt: 2 }}>
                             <Typography variant="body1" gutterBottom fontWeight="medium">
-                                Logo Azienda
+                                Logo Azienda (opzionale)
                             </Typography>
                             <Input
                                 accept="image/*"
@@ -288,13 +460,14 @@ const AddForm = () => {
                                 id="logo-upload"
                                 type="file"
                                 onChange={handleLogoUpload}
+                                disabled={saving}
                             />
                             <label htmlFor="logo-upload">
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                    <IconButton color="primary" component="span" size="large">
+                                    <IconButton color="primary" component="span" size="large" disabled={saving}>
                                         <PhotoCamera />
                                     </IconButton>
-                                    <Button variant="outlined" component="span" color="primary">
+                                    <Button variant="outlined" component="span" color="primary" disabled={saving}>
                                         Carica Logo
                                     </Button>
                                 </Box>
@@ -313,6 +486,7 @@ const AddForm = () => {
                             variant="contained"
                             size="large"
                             fullWidth
+                            disabled={saving}
                             sx={{
                                 mt: 2,
                                 py: 1.5,
@@ -320,7 +494,14 @@ const AddForm = () => {
                                 fontWeight: 'bold'
                             }}
                         >
-                            Aggiungi Azienda
+                            {saving ? (
+                                <>
+                                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                                    Aggiungendo...
+                                </>
+                            ) : (
+                                'Aggiungi Azienda'
+                            )}
                         </Button>
                     </Grid>
                 </Grid>
@@ -331,13 +512,25 @@ const AddForm = () => {
     // EMPLOYEE FORM
     const renderEmployeeForm = () => (
         <Fade in={selectedForm === 'employee'} timeout={300}>
-            <Box component="form" onSubmit={handleSubmit}>
+            <Box component="form" onSubmit={handleEmployeeSubmit}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, pb: 2, borderBottom: '2px solid #2e7d32' }}>
                     <Person sx={{ fontSize: 32, color: '#2e7d32', mr: 2 }} />
                     <Typography variant="h4" color="success.main" fontWeight="bold">
                         Aggiungi Dipendente
                     </Typography>
                 </Box>
+
+                {/* Alert messages */}
+                {error && (
+                    <Alert severity="error" sx={{ mb: 3 }}>
+                        {error}
+                    </Alert>
+                )}
+                {success && (
+                    <Alert severity="success" sx={{ mb: 3 }}>
+                        Dipendente aggiunto con successo!
+                    </Alert>
+                )}
 
                 <Grid container spacing={3}>
                     <Grid item xs={6}>
@@ -348,6 +541,7 @@ const AddForm = () => {
                             onChange={(e) => handleEmployeeChange('first_name', e.target.value)}
                             required
                             variant="outlined"
+                            disabled={saving}
                         />
                     </Grid>
 
@@ -359,25 +553,26 @@ const AddForm = () => {
                             onChange={(e) => handleEmployeeChange('last_name', e.target.value)}
                             required
                             variant="outlined"
+                            disabled={saving}
                         />
                     </Grid>
 
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
-                            label="Data di Nascita"
+                            label="Data di Nascita (opzionale)"
                             type="date"
                             value={employeeForm.birthdate}
                             onChange={(e) => handleEmployeeChange('birthdate', e.target.value)}
                             InputLabelProps={{ shrink: true }}
-                            required
                             variant="outlined"
+                            disabled={saving}
                         />
                     </Grid>
 
                     <Grid item xs={12}>
-                        <FormControl component="fieldset">
-                            <FormLabel component="legend" sx={{ fontWeight: 'medium' }}>Sesso</FormLabel>
+                        <FormControl component="fieldset" disabled={saving}>
+                            <FormLabel component="legend" sx={{ fontWeight: 'medium' }}>Sesso (opzionale)</FormLabel>
                             <RadioGroup
                                 row
                                 value={employeeForm.sex}
@@ -390,13 +585,17 @@ const AddForm = () => {
                     </Grid>
 
                     <Grid item xs={6}>
-                        <FormControl fullWidth required>
-                            <InputLabel>Paese</InputLabel>
+                        <FormControl fullWidth>
+                            <InputLabel>Paese (opzionale)</InputLabel>
                             <Select
                                 value={employeeForm.countryId}
                                 onChange={(e) => handleEmployeeChange('countryId', e.target.value)}
-                                label="Paese"
+                                label="Paese (opzionale)"
+                                disabled={saving}
                             >
+                                <MenuItem value="">
+                                    <em>Nessun paese</em>
+                                </MenuItem>
                                 {countries.map((country) => (
                                     <MenuItem key={country.id} value={country.id}>
                                         {country.name} ({country.iso})
@@ -407,13 +606,16 @@ const AddForm = () => {
                     </Grid>
 
                     <Grid item xs={6}>
-                        <FormControl fullWidth required disabled={!employeeForm.countryId}>
-                            <InputLabel>Città</InputLabel>
+                        <FormControl fullWidth disabled={!employeeForm.countryId || saving}>
+                            <InputLabel>Città (opzionale)</InputLabel>
                             <Select
                                 value={employeeForm.city_fk}
                                 onChange={(e) => handleEmployeeChange('city_fk', e.target.value)}
-                                label="Città"
+                                label="Città (opzionale)"
                             >
+                                <MenuItem value="">
+                                    <em>Nessuna città</em>
+                                </MenuItem>
                                 {employeeCities.map((city) => (
                                     <MenuItem key={city.id} value={city.id}>
                                         {city.name}
@@ -424,12 +626,12 @@ const AddForm = () => {
                     </Grid>
 
                     <Grid item xs={12}>
-                        <FormControl fullWidth>
-                            <InputLabel>Azienda (Opzionale)</InputLabel>
+                        <FormControl fullWidth disabled={saving}>
+                            <InputLabel>Azienda (opzionale)</InputLabel>
                             <Select
                                 value={employeeForm.company_fk}
                                 onChange={(e) => handleEmployeeChange('company_fk', e.target.value)}
-                                label="Azienda (Opzionale)"
+                                label="Azienda (opzionale)"
                             >
                                 <MenuItem value="">
                                     <em>Nessuna azienda</em>
@@ -450,6 +652,7 @@ const AddForm = () => {
                             color="success"
                             size="large"
                             fullWidth
+                            disabled={saving}
                             sx={{
                                 mt: 2,
                                 py: 1.5,
@@ -457,7 +660,14 @@ const AddForm = () => {
                                 fontWeight: 'bold'
                             }}
                         >
-                            Aggiungi Dipendente
+                            {saving ? (
+                                <>
+                                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                                    Aggiungendo...
+                                </>
+                            ) : (
+                                'Aggiungi Dipendente'
+                            )}
                         </Button>
                     </Grid>
                 </Grid>
@@ -468,13 +678,25 @@ const AddForm = () => {
     // FILE UPLOADS
     const renderFileUploadForm = () => (
         <Fade in={selectedForm === 'upload'} timeout={300}>
-            <Box component="form" onSubmit={handleSubmit}>
+            <Box component="form" onSubmit={handleFileSubmit}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, pb: 2, borderBottom: '2px solid #ed6c02' }}>
                     <CloudUpload sx={{ fontSize: 32, color: '#ed6c02', mr: 2 }} />
                     <Typography variant="h4" color="warning.main" fontWeight="bold">
                         Carica File Dati
                     </Typography>
                 </Box>
+
+                {/* Alert messages */}
+                {error && (
+                    <Alert severity="error" sx={{ mb: 3 }}>
+                        {error}
+                    </Alert>
+                )}
+                {success && (
+                    <Alert severity="success" sx={{ mb: 3 }}>
+                        File caricato con successo!
+                    </Alert>
+                )}
 
                 <Box sx={{ textAlign: 'center', py: 6 }}>
                     <Input
@@ -483,6 +705,7 @@ const AddForm = () => {
                         id="file-upload"
                         type="file"
                         onChange={handleFileUpload}
+                        disabled={uploading}
                     />
                     <label htmlFor="file-upload">
                         <Paper
@@ -491,17 +714,18 @@ const AddForm = () => {
                                 p: 6,
                                 border: '2px dashed #ed6c02',
                                 borderRadius: 3,
-                                cursor: 'pointer',
+                                cursor: uploading ? 'not-allowed' : 'pointer',
                                 transition: 'all 0.3s ease',
+                                opacity: uploading ? 0.6 : 1,
                                 '&:hover': {
-                                    backgroundColor: '#fff3e0',
-                                    borderColor: '#e65100'
+                                    backgroundColor: uploading ? 'inherit' : '#fff3e0',
+                                    borderColor: uploading ? '#ed6c02' : '#e65100'
                                 }
                             }}
                         >
                             <CloudUpload sx={{ fontSize: 64, color: '#ed6c02', mb: 2 }} />
                             <Typography variant="h6" gutterBottom>
-                                Seleziona File
+                                {uploading ? 'Caricamento...' : 'Seleziona File'}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 Formati supportati: CSV, XLSX, XLS, JSON
@@ -526,7 +750,7 @@ const AddForm = () => {
                     variant="contained"
                     color="warning"
                     size="large"
-                    disabled={!uploadFile}
+                    disabled={!uploadFile || uploading}
                     fullWidth
                     sx={{
                         mt: 2,
@@ -535,7 +759,14 @@ const AddForm = () => {
                         fontWeight: 'bold'
                     }}
                 >
-                    Carica File
+                    {uploading ? (
+                        <>
+                            <CircularProgress size={20} sx={{ mr: 1 }} />
+                            Caricando...
+                        </>
+                    ) : (
+                        'Carica File'
+                    )}
                 </Button>
             </Box>
         </Fade>
