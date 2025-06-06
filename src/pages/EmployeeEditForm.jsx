@@ -24,6 +24,7 @@ import {
 } from '@mui/icons-material';
 import {useNavigate} from "react-router-dom";
 import * as React from "react";
+import BASE_API_URL from "../config/config.js";
 
 export default function EmployeeEditForm() {
 
@@ -85,7 +86,7 @@ export default function EmployeeEditForm() {
         setError(null);
 
         try {
-            const response = await fetch(`http://localhost:8100/home/employee/${editingEmployeeId}`, {
+            const response = await fetch(`http://${BASE_API_URL}/home/employee/${editingEmployeeId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -123,7 +124,7 @@ export default function EmployeeEditForm() {
 
     const fetchCountries = async () => {
         try {
-            const response = await fetch('http://localhost:8100/home/countries', {
+            const response = await fetch(`http://${BASE_API_URL}/home/countries`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -141,7 +142,7 @@ export default function EmployeeEditForm() {
 
     const fetchCities = async (countryId) => {
         try {
-            const response = await fetch(`http://localhost:8100/home/countries/${countryId}/cities`, {
+            const response = await fetch(`http://${BASE_API_URL}/home/countries/${countryId}/cities`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -159,7 +160,7 @@ export default function EmployeeEditForm() {
 
     const fetchCompanies = async () => {
         try {
-            const response = await fetch('http://localhost:8100/home/companies', {
+            const response = await fetch(`http://${BASE_API_URL}/home/companies`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -237,7 +238,7 @@ export default function EmployeeEditForm() {
 
             updateData.id = editingEmployeeId;
 
-            const response = await fetch(`http://localhost:8100/home/employee`, {
+            const response = await fetch(`http://${BASE_API_URL}/home/employee`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

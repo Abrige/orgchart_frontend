@@ -22,6 +22,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {setEditingEmployeeId} from "../redux/slices/employeeSlice.js";
+import BASE_API_URL from "../config/config.js";
 
 const EmployeeDetailPage = () => {
     // Dati di esempio per l'impiegato
@@ -33,7 +34,7 @@ const EmployeeDetailPage = () => {
 
     useEffect(() => {
         if (employeeId) {
-            fetch(`http://localhost:8100/home/employee/${employeeId}`)
+            fetch(`http://${BASE_API_URL}/home/employee/${employeeId}`)
                 .then(res => res.json())
                 .then(data => setEmployee(data))
                 .catch(err => console.error('Errore fetch impiegato:', err));

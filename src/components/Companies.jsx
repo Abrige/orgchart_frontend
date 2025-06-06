@@ -21,6 +21,7 @@ import {setCurrentCompanySelected, setEditingCompany} from '../redux/slices/comp
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import BASE_API_URL from "../config/config.js";
 
 // Supporta "city.name", "city.country.name", ecc.
 function getValueByPath(obj, path) {
@@ -169,7 +170,7 @@ export default function Companies() {
         setIsLoading(true);
         setError(null);
 
-        fetch('http://localhost:8100/home/companies', {
+        fetch(`http://${BASE_API_URL}/home/companies`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

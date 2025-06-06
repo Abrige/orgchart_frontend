@@ -20,6 +20,7 @@ import {
     ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
 import {setEditingCompany} from "../redux/slices/companySlice.js";
+import BASE_API_URL from "../config/config.js";
 
 function Company() {
     // STATE
@@ -33,7 +34,7 @@ function Company() {
 
     useEffect(() => {
         if (selectedCompanyId) {
-            fetch(`http://localhost:8100/home/companies/${selectedCompanyId}/employees`)
+            fetch(`http://${BASE_API_URL}/home/companies/${selectedCompanyId}/employees`)
                 .then(res => res.json()) // 👈 converte in oggetto JS
                 .then(data => {
                     setEmployees(data);
