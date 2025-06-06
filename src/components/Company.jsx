@@ -21,6 +21,7 @@ import {
 } from '@mui/icons-material';
 import {setEditingCompany} from "../redux/slices/companySlice.js";
 import BASE_API_URL from "../config/config.js";
+import {handleCompanyDelete, handleEmployeeDelete} from "../utils/utils.js";
 
 function Company() {
     // STATE
@@ -63,18 +64,6 @@ function Company() {
         dispatch(setEditingEmployeeId(employee.id));
         navigate("/modifyemployee");
     };
-
-    const handleCompanyDelete = (company) => {
-        // aggiungere logica per la delete al database
-        console.log(`ID: ${company.id}, name: ${company.name}, ###### DELETED ######`)
-    }
-
-    const handleEmployeeDelete = (event, employee) => {
-        // aggiungere logica per la delete al database
-        event.stopPropagation()
-        console.log(`ID: ${employee.id}, name: ${employee.first_name} ${employee.last_name}, ###### DELETED ######`)
-    }
-
 
     return (
             <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', py: 3, mb: 6}}>

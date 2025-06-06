@@ -23,6 +23,7 @@ import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {setEditingEmployeeId} from "../redux/slices/employeeSlice.js";
 import BASE_API_URL from "../config/config.js";
+import {handleEmployeeDelete} from "../utils/utils.js";
 
 const EmployeeDetailPage = () => {
     // Dati di esempio per l'impiegato
@@ -65,11 +66,6 @@ const EmployeeDetailPage = () => {
         event.stopPropagation();
         dispatch(setEditingEmployeeId(employee.id));
         navigate("/modifyemployee");
-    }
-
-    const handleEmployeeDelete = (employee) => {
-        // aggiungere logica per la delete al database
-        console.log(`ID: ${employee.id}, name: ${employee.first_name} ${employee.last_name}, ###### DELETED ######`)
     }
 
     return (
@@ -147,7 +143,7 @@ const EmployeeDetailPage = () => {
                                         },
                                         borderRadius: 1.5
                                     }}
-                                    onClick={() => handleEmployeeDelete(employee)}
+                                    onClick={() => handleEmployeeDelete(null, employee)}
                                     aria-label={`elimina ${employee.first_name} ${employee.last_name}`}
                                 >
                                     <DeleteIcon fontSize="small" />

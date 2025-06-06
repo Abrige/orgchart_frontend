@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -12,11 +13,10 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import Paper from '@mui/material/Paper';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-import { visuallyHidden } from '@mui/utils';
-import { useEffect, useState } from "react";
+import {visuallyHidden} from '@mui/utils';
 import Typography from "@mui/material/Typography";
 import {useNavigate} from "react-router-dom";
-import { useDispatch } from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {setCurrentCompanySelected, setEditingCompany} from '../redux/slices/companySlice.js';
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
@@ -89,7 +89,7 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-    const { order, orderBy, onRequestSort } = props;
+    const {order, orderBy, onRequestSort} = props;
 
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
@@ -157,7 +157,7 @@ export default function Companies() {
 
     // Funzione per formattare i dati (definita fuori dal useEffect)
     const formatData = () => {
-        if(responseData) {
+        if (responseData) {
             setCompanies(responseData.content);
             setPage(responseData.pageable.pageNumber);
         }
@@ -165,8 +165,7 @@ export default function Companies() {
 
     useEffect(formatData, [responseData])
 
-    // Fetch dei dati dal server
-    useEffect(() => {
+    const refreshTable = () => {
         setIsLoading(true);
         setError(null);
 
@@ -197,7 +196,29 @@ export default function Companies() {
             .finally(() => {
                 setIsLoading(false);
             });
-    }, [page, rowsPerPage]);
+    }
+
+    const handleCompanyDelete = async (event, company) => {
+        event.stopPropagation();
+        try {
+            const response = await fetch(`${BASE_API_URL}/home/company/${company.id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert("Eliminazione riuscita");
+                refreshTable();
+            } else {
+                throw new Error(`Errore: ${response.status}`);
+            }
+        } catch (error) {
+            console.error('Errore durante l\'eliminazione:', error);
+            alert('Errore durante l\'eliminazione dell\'azienda.');
+        }
+    }
+
+    // Fetch dei dati dal server
+    useEffect(refreshTable, [page, rowsPerPage]);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -221,7 +242,7 @@ export default function Companies() {
 
     if (error) {
         return (
-            <Box sx={{ p: 2, color: 'error.main' }}>
+            <Box sx={{p: 2, color: 'error.main'}}>
                 Errore nel caricamento: {error}
             </Box>
         );
@@ -238,16 +259,10 @@ export default function Companies() {
         navigate("/modifycompany");
     }
 
-    const handleCompanyDelete = (event, company) => {
-        // aggiungere logica per la delete al database
-        event.stopPropagation();
-        console.log(`ID: ${company.id}, name: ${company.name}, ###### DELETED ######`)
-    }
-
     const isAdmin = true;
 
     return (
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', py: 3, mb: 4 }}>
+        <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', py: 3, mb: 4}}>
             <Box
                 sx={{
                     width: '100%',
@@ -274,7 +289,7 @@ export default function Companies() {
                 }}>
                     <TableContainer>
                         <Table
-                            sx={{ minWidth: 750 }}
+                            sx={{minWidth: 750}}
                             aria-labelledby="tableTitle"
                             size={dense ? 'small' : 'medium'}
                         >
@@ -380,7 +395,7 @@ export default function Companies() {
                                                     {company.numOfEmployees}
                                                 </TableCell>
                                                 {isAdmin && (
-                                                    <TableCell align="right" sx={{ py: 2 }}>
+                                                    <TableCell align="right" sx={{py: 2}}>
                                                         <Box sx={{
                                                             display: 'flex',
                                                             gap: 0.5,
@@ -403,7 +418,7 @@ export default function Companies() {
                                                                 onClick={(event) => handleModifyCompany(event, company)}
                                                                 aria-label="modifica azienda"
                                                             >
-                                                                <EditIcon fontSize="small" />
+                                                                <EditIcon fontSize="small"/>
                                                             </IconButton>
                                                             <IconButton
                                                                 size="small"
@@ -417,7 +432,7 @@ export default function Companies() {
                                                                 onClick={(event) => handleCompanyDelete(event, company)}
                                                                 aria-label="elimina azienda"
                                                             >
-                                                                <DeleteIcon fontSize="small" />
+                                                                <DeleteIcon fontSize="small"/>
                                                             </IconButton>
                                                         </Box>
                                                     </TableCell>
@@ -450,7 +465,7 @@ export default function Companies() {
                 </Paper>
 
                 <FormControlLabel
-                    control={<Switch checked={dense} onChange={handleChangeDense} />}
+                    control={<Switch checked={dense} onChange={handleChangeDense}/>}
                     label="Dense padding"
                     sx={{
                         '& .MuiFormControlLabel-label': {
