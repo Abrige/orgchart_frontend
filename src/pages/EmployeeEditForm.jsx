@@ -86,7 +86,7 @@ export default function EmployeeEditForm() {
         setError(null);
 
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/employee/${editingEmployeeId}`, {
+            const response = await fetch(`${BASE_API_URL}/home/employee/${editingEmployeeId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ export default function EmployeeEditForm() {
 
     const fetchCountries = async () => {
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/countries`, {
+            const response = await fetch(`${BASE_API_URL}/home/countries`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -142,7 +142,7 @@ export default function EmployeeEditForm() {
 
     const fetchCities = async (countryId) => {
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/countries/${countryId}/cities`, {
+            const response = await fetch(`${BASE_API_URL}/home/countries/${countryId}/cities`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -160,7 +160,7 @@ export default function EmployeeEditForm() {
 
     const fetchCompanies = async () => {
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/companies`, {
+            const response = await fetch(`${BASE_API_URL}/home/companies`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -238,7 +238,7 @@ export default function EmployeeEditForm() {
 
             updateData.id = editingEmployeeId;
 
-            const response = await fetch(`http://${BASE_API_URL}/home/employee`, {
+            const response = await fetch(`${BASE_API_URL}/home/employee`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

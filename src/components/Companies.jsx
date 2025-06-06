@@ -170,7 +170,7 @@ export default function Companies() {
         setIsLoading(true);
         setError(null);
 
-        fetch(`http://${BASE_API_URL}/home/companies`, {
+        fetch(`${BASE_API_URL}/home/companies`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

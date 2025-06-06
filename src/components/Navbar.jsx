@@ -14,6 +14,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import {NavLink} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 const drawerWidth = 240;
 
@@ -21,12 +22,13 @@ const navItems = [
   { label: 'Home', path: '/' },
   { label: 'Add', path: '/addform' },
   { label: 'About', path: '/about' },
-  { label: 'Login', path: '/loginform' }
+//  { label: `Login`, path: '/loginform' }
 ];
 
 function Navbar(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const username = useSelector(state => state.auth.username)
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -113,6 +115,16 @@ function Navbar(props) {
                 {item.label}
               </Button>
             ))}
+            <Button
+                key="Login"
+                component={NavLink}
+                to={username ? '' : '/loginform'}
+                sx={{
+                    color: '#fff',
+                }}
+            >
+                {username ? username : 'Login'}
+            </Button>
           </Box>
         </Toolbar>
       </AppBar>

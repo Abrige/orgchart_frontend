@@ -1,6 +1,6 @@
 // src/api/homeApi.js
 
-const BASE_URL = 'http://${BASE_API_URL}/home';
+const BASE_URL = '${BASE_API_URL}/home';
 
 export const fetchCountries = async () => {
     try {

@@ -34,7 +34,7 @@ function Company() {
 
     useEffect(() => {
         if (selectedCompanyId) {
-            fetch(`http://${BASE_API_URL}/home/companies/${selectedCompanyId}/employees`)
+            fetch(`${BASE_API_URL}/home/companies/${selectedCompanyId}/employees`)
                 .then(res => res.json()) // 👈 converte in oggetto JS
                 .then(data => {
                     setEmployees(data);

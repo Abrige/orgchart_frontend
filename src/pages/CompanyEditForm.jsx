@@ -92,7 +92,7 @@ export default function CompanyEditForm() {
 
     const fetchCountries = async () => {
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/countries`, {
+            const response = await fetch(`${BASE_API_URL}/home/countries`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -110,7 +110,7 @@ export default function CompanyEditForm() {
 
     const fetchCities = async (countryId) => {
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/countries/${countryId}/cities`, {
+            const response = await fetch(`${BASE_API_URL}/home/countries/${countryId}/cities`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -163,7 +163,7 @@ export default function CompanyEditForm() {
             const formDataUpload = new FormData();
             formDataUpload.append('logo', file);
 
-            const response = await fetch(`http://${BASE_API_URL}/home`, {
+            const response = await fetch(`${BASE_API_URL}/home`, {
                 method: 'POST',
                 body: formDataUpload
             });
@@ -225,7 +225,7 @@ export default function CompanyEditForm() {
             console.log(updateData);
 
             // Esegui la richiesta POST o PUT
-            const response = await fetch(`http://${BASE_API_URL}/home/company`, {
+            const response = await fetch(`${BASE_API_URL}/home/company`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

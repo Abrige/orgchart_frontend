@@ -73,7 +73,7 @@ const AddForm = () => {
     // Fetch functions
     const fetchCountries = async () => {
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/countries`, {
+            const response = await fetch(`${BASE_API_URL}/home/countries`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -91,7 +91,7 @@ const AddForm = () => {
 
     const fetchCities = async (countryId) => {
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/countries/${countryId}/cities`, {
+            const response = await fetch(`${BASE_API_URL}/home/countries/${countryId}/cities`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -109,7 +109,7 @@ const AddForm = () => {
 
     const fetchEmployeeCities = async (countryId) => {
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/countries/${countryId}/cities`, {
+            const response = await fetch(`${BASE_API_URL}/home/countries/${countryId}/cities`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -127,7 +127,7 @@ const AddForm = () => {
 
     const fetchCompanies = async () => {
         try {
-            const response = await fetch(`http://${BASE_API_URL}/home/companies`, {
+            const response = await fetch(`${BASE_API_URL}/home/companies`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -230,7 +230,7 @@ const AddForm = () => {
 
             console.log('Dati azienda da inviare:', addCompanyData);
 
-            const response = await fetch(`http://${BASE_API_URL}/home/company`, {
+            const response = await fetch(`${BASE_API_URL}/home/company`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -280,7 +280,7 @@ const AddForm = () => {
 
             console.log('Dati dipendente da inviare:', addEmployeeData);
 
-            const response = await fetch(`http://${BASE_API_URL}/home/employee`, {
+            const response = await fetch(`${BASE_API_URL}/home/employee`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -326,7 +326,7 @@ const AddForm = () => {
             formData.append('file', uploadFile);
 
             // Qui dovrai adattare l'endpoint per il caricamento file
-            const response = await fetch(`http://${BASE_API_URL}/home/upload`, {
+            const response = await fetch(`${BASE_API_URL}/home/upload`, {
                 method: 'POST',
                 body: formData
             });

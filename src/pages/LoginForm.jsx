@@ -1,34 +1,26 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
+    Alert,
     Box,
+    Button,
     Card,
     CardContent,
-    TextField,
-    Button,
-    Typography,
+    CircularProgress,
+    Container,
+    IconButton,
+    InputAdornment,
     Tab,
     Tabs,
-    Alert,
-    InputAdornment,
-    IconButton,
-    FormControlLabel,
-    Checkbox,
-    Link,
-    Divider,
-    CircularProgress,
-    Container
+    TextField,
+    Typography
 } from '@mui/material';
-import {
-    Visibility,
-    VisibilityOff,
-    Email,
-    Lock,
-    Person,
-    Google,
-    Facebook
-} from '@mui/icons-material';
+import {Email, Lock, Visibility, VisibilityOff,} from '@mui/icons-material';
+import BASE_API_URL from "../config/config.js";
+import {setToken} from "../redux/slices/authSlice.js";
+import {useDispatch} from "react-redux";
 
 function LoginForm() {
+    const dispatch = useDispatch();
     const [tab, setTab] = useState(0);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -43,12 +35,9 @@ function LoginForm() {
     });
 
     const [registerForm, setRegisterForm] = useState({
-        firstName: '',
-        lastName: '',
         email: '',
         password: '',
-        confirmPassword: '',
-        acceptTerms: false
+        confirmPassword: ''
     });
 
     // Validation errors
@@ -108,14 +97,6 @@ function LoginForm() {
     const validateRegister = () => {
         const errors = {};
 
-        if (!registerForm.firstName.trim()) {
-            errors.firstName = 'Nome richiesto';
-        }
-
-        if (!registerForm.lastName.trim()) {
-            errors.lastName = 'Cognome richiesto';
-        }
-
         if (!registerForm.email) {
             errors.email = 'Email richiesta';
         } else if (!validateEmail(registerForm.email)) {
@@ -134,10 +115,6 @@ function LoginForm() {
             errors.confirmPassword = 'Le password non coincidono';
         }
 
-        if (!registerForm.acceptTerms) {
-            errors.acceptTerms = 'Devi accettare i termini e condizioni';
-        }
-
         setRegisterErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -151,15 +128,14 @@ function LoginForm() {
 
         try {
             // Qui inserisci la tua chiamata API
-            const response = await fetch('/api/login', {
+            const response = await fetch(`${BASE_API_URL}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    email: loginForm.email,
+                    mail: loginForm.email,
                     password: loginForm.password,
-                    rememberMe: loginForm.rememberMe
                 }),
             });
 
@@ -173,7 +149,7 @@ function LoginForm() {
                 });
 
                 // Salva il token se necessario
-                localStorage.setItem('token', data.token);
+                dispatch(setToken(data.token));
 
                 // Redirect o aggiorna stato app
                 // window.location.href = '/dashboard';
@@ -190,8 +166,9 @@ function LoginForm() {
             setAlert({
                 show: true,
                 type: 'error',
-                message: 'Errore durante il login. Riprova.'
+                message: 'Errore durante il login. Riprova'
             });
+            console.log(error)
         } finally {
             setLoading(false);
         }
@@ -204,31 +181,17 @@ function LoginForm() {
 
         setLoading(true);
 
-        const jsonValues = JSON.stringify({
-            firstName: registerForm.firstName,
-            lastName: registerForm.lastName,
-            email: registerForm.email,
-            password: registerForm.password
-        })
-
-        console.log(jsonValues)
-
         try {
-            // Qui inserisci la tua chiamata API
-            const response = await fetch('/api/register', {
+            const response = await fetch(`${BASE_API_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    firstName: registerForm.firstName,
-                    lastName: registerForm.lastName,
-                    email: registerForm.email,
-                    password: registerForm.password
+                    mail: registerForm.email,
+                    password: registerForm.password,
                 }),
             });
-
-            const data = await response.json();
 
             if (response.ok) {
                 setAlert({
@@ -239,12 +202,9 @@ function LoginForm() {
 
                 // Reset form
                 setRegisterForm({
-                    firstName: '',
-                    lastName: '',
                     email: '',
                     password: '',
-                    confirmPassword: '',
-                    acceptTerms: false
+                    confirmPassword: ''
                 });
 
                 // Cambia tab al login
@@ -254,7 +214,7 @@ function LoginForm() {
                 setAlert({
                     show: true,
                     type: 'error',
-                    message: data.message || 'Errore durante la registrazione'
+                    message: 'Errore durante la registrazione'
                 });
             }
 
@@ -264,14 +224,10 @@ function LoginForm() {
                 type: 'error',
                 message: 'Errore durante la registrazione. Riprova.'
             });
+            console.log(error);
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleSocialLogin = (provider) => {
-        // Implementa login social
-        window.location.href = `/auth/${provider.toLowerCase()}`;
     };
 
     return (
@@ -396,27 +352,6 @@ function LoginForm() {
                                     mt: 2,
                                     mb: 3
                                 }}>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={loginForm.rememberMe}
-                                                onChange={handleLoginChange('rememberMe')}
-                                                color="primary"
-                                            />
-                                        }
-                                        label="Ricordami"
-                                    />
-                                    <Link
-                                        href="#"
-                                        variant="body2"
-                                        color="primary"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            // Implementa reset password
-                                        }}
-                                    >
-                                        Password dimenticata?
-                                    </Link>
                                 </Box>
 
                                 <Button
@@ -430,66 +365,12 @@ function LoginForm() {
                                     {loading ? <CircularProgress size={24} /> : 'Accedi'}
                                 </Button>
 
-                                <Divider sx={{ my: 3 }}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        oppure
-                                    </Typography>
-                                </Divider>
-
-                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <Button
-                                        fullWidth
-                                        variant="outlined"
-                                        startIcon={<Google />}
-                                        onClick={() => handleSocialLogin('Google')}
-                                        sx={{ py: 1.2 }}
-                                    >
-                                        Google
-                                    </Button>
-                                    <Button
-                                        fullWidth
-                                        variant="outlined"
-                                        startIcon={<Facebook />}
-                                        onClick={() => handleSocialLogin('Facebook')}
-                                        sx={{ py: 1.2 }}
-                                    >
-                                        Facebook
-                                    </Button>
-                                </Box>
                             </Box>
                         )}
 
                         {/* Register Form */}
                         {tab === 1 && (
                             <Box component="form" onSubmit={handleRegister} noValidate>
-                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <TextField
-                                        fullWidth
-                                        label="Nome"
-                                        value={registerForm.firstName}
-                                        onChange={handleRegisterChange('firstName')}
-                                        error={!!registerErrors.firstName}
-                                        helperText={registerErrors.firstName}
-                                        margin="normal"
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <Person color="action" />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                    />
-                                    <TextField
-                                        fullWidth
-                                        label="Cognome"
-                                        value={registerForm.lastName}
-                                        onChange={handleRegisterChange('lastName')}
-                                        error={!!registerErrors.lastName}
-                                        helperText={registerErrors.lastName}
-                                        margin="normal"
-                                    />
-                                </Box>
-
                                 <TextField
                                     fullWidth
                                     label="Email"
@@ -564,37 +445,6 @@ function LoginForm() {
                                     }}
                                 />
 
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={registerForm.acceptTerms}
-                                            onChange={handleRegisterChange('acceptTerms')}
-                                            color="primary"
-                                        />
-                                    }
-                                    label={
-                                        <Typography variant="body2">
-                                            Accetto i{' '}
-                                            <Link
-                                                href="#"
-                                                color="primary"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    // Apri modal termini e condizioni
-                                                }}
-                                            >
-                                                termini e condizioni
-                                            </Link>
-                                        </Typography>
-                                    }
-                                    sx={{ mt: 2, mb: 1, alignItems: 'flex-start' }}
-                                />
-                                {registerErrors.acceptTerms && (
-                                    <Typography variant="caption" color="error" sx={{ ml: 4, display: 'block' }}>
-                                        {registerErrors.acceptTerms}
-                                    </Typography>
-                                )}
-
                                 <Button
                                     type="submit"
                                     fullWidth
@@ -605,33 +455,6 @@ function LoginForm() {
                                 >
                                     {loading ? <CircularProgress size={24} /> : 'Registrati'}
                                 </Button>
-
-                                <Divider sx={{ my: 3 }}>
-                                    <Typography variant="body2" color="text.secondary">
-                                        oppure
-                                    </Typography>
-                                </Divider>
-
-                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <Button
-                                        fullWidth
-                                        variant="outlined"
-                                        startIcon={<Google />}
-                                        onClick={() => handleSocialLogin('Google')}
-                                        sx={{ py: 1.2 }}
-                                    >
-                                        Google
-                                    </Button>
-                                    <Button
-                                        fullWidth
-                                        variant="outlined"
-                                        startIcon={<Facebook />}
-                                        onClick={() => handleSocialLogin('Facebook')}
-                                        sx={{ py: 1.2 }}
-                                    >
-                                        Facebook
-                                    </Button>
-                                </Box>
                             </Box>
                         )}
                     </CardContent>

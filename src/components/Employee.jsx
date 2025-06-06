@@ -34,7 +34,7 @@ const EmployeeDetailPage = () => {
 
     useEffect(() => {
         if (employeeId) {
-            fetch(`http://${BASE_API_URL}/home/employee/${employeeId}`)
+            fetch(`${BASE_API_URL}/home/employee/${employeeId}`)
                 .then(res => res.json())
                 .then(data => setEmployee(data))
                 .catch(err => console.error('Errore fetch impiegato:', err));
